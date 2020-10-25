@@ -1,29 +1,25 @@
 
-//  Based on Arduino smoothing, analog read and calibrate examples
-// http://www.arduino.cc/en/Tutorial/Smoothing
+// Based on Arduino smoothing, analog read and calibrate examples
 
 // These constants won't change:
 const int sensorPin = A2;    // pin that the sensor is attached to
-const int ledPin = 13;        // pin that the LED is attached to
+const int ledPin = 13;       // pin that the LED is attached to
+const int numReadings = 10;  // number of samples taken to average
 
 // variables:
 int sensorValue = 0;         // the sensor value
 int sensorMin = 1023;        // minimum sensor value
 int sensorMax = 0;           // maximum sensor value
-
-
-const int numReadings = 10;
-
 int readings[numReadings];      // the readings from the analog input
 int readIndex = 0;              // the index of the current reading
 int total = 0;                  // the running total
 int average = 0;                // the average
 
-
 void setup() {
 
   // initialize serial communication with computer:
   Serial.begin(9600);
+
   // initialize all the readings to 0:
   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
     readings[thisReading] = 0;
@@ -53,6 +49,7 @@ void setup() {
 }
 
 void loop() {
+
   // subtract the last reading:
   total = total - readings[readIndex];
 
@@ -84,12 +81,7 @@ void loop() {
   Serial.println(average);
   delay(1);        // delay in between reads for stability
 
-  // Serial.println(sensorValue);
-  // delay(200);
-
   // fade the LED using the calibrated value:
   analogWrite(13, average);
-  // fade the LED using the calibrated value:
-  // analogWrite(13, sensorValue);
 
 }
