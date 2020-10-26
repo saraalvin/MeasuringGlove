@@ -1,5 +1,17 @@
+#include <MegunoLink.h>
+#include <CommandHandler.h>
+#include <TCPCommandHandler.h>
+#include <ArduinoTimer.h>
+#include <CircularBuffer.h>
+#include <EEPROMStore.h>
+#include <Filter.h>
 
-// Based on Arduino smoothing, analog read and calibrate examples
+//  http://www.arduino.cc/en/Tutorial/Smoothing
+
+// Define the number of samples to keep track of. The higher the number, the
+// more the readings will be smoothed, but the slower the output will respond to
+// the input. Using a constant rather than a normal variable lets us use this
+// value to determine the size of the readings array.
 
 // These constants won't change:
 const int sensorPin = A2;    // pin that the sensor is attached to
@@ -10,20 +22,14 @@ const int numReadings = 10;  // number of samples taken to average
 int sensorValue = 0;         // the sensor value
 int sensorMin = 1023;        // minimum sensor value
 int sensorMax = 0;           // maximum sensor value
-int readings[numReadings];      // the readings from the analog input
-int readIndex = 0;              // the index of the current reading
-int total = 0;                  // the running total
-int average = 0;                // the average
+
+long FilterWeight = 5;
+ExponentialFilter<long> ADCFilter(FilterWeight, 0);
 
 void setup() {
 
   // initialize serial communication with computer:
   Serial.begin(9600);
-
-  // initialize all the readings to 0:
-  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
-    readings[thisReading] = 0;
-  }
 
   // turn on LED to signal the start of the calibration period:
   pinMode(13, OUTPUT);
@@ -50,9 +56,6 @@ void setup() {
 
 void loop() {
 
-  // subtract the last reading:
-  total = total - readings[readIndex];
-
   // read the sensor:
   sensorValue = analogRead(sensorPin);
 
@@ -61,27 +64,19 @@ void loop() {
 
   // in case the sensor value is outside the range seen during calibration
   sensorValue = constrain(sensorValue, 0, 255);
-  readings[readIndex] = sensorValue;
 
-  // add the reading to the total:
-  total = total + readings[readIndex];
-  // advance to the next position in the array:
-  readIndex = readIndex + 1;
+  // filter raw value
+  ADCFilter.Filter(sensorValue);
 
-  // if we're at the end of the array...
-  if (readIndex >= numReadings) {
-    // ...wrap around to the beginning:
-    readIndex = 0;
-  }
-
-  // calculate the average:
-  average = total / numReadings;
+  TimePlot Plot;
+  //Plot.SendData("Raw", sensorValue);
+  Plot.SendData("Filtered", ADCFilter.Current());
 
   // send it to the computer as ASCII digits
-  Serial.println(average);
-  delay(1);        // delay in between reads for stability
+  Serial.println(ADCFilter.Current());
+  delay(100);        // delay in between reads for stability
 
   // fade the LED using the calibrated value:
-  analogWrite(13, average);
+  analogWrite(13, ADCFilter.Current());
 
 }
