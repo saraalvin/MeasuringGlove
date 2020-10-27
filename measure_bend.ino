@@ -6,17 +6,9 @@
 #include <EEPROMStore.h>
 #include <Filter.h>
 
-//  http://www.arduino.cc/en/Tutorial/Smoothing
-
-// Define the number of samples to keep track of. The higher the number, the
-// more the readings will be smoothed, but the slower the output will respond to
-// the input. Using a constant rather than a normal variable lets us use this
-// value to determine the size of the readings array.
-
 // These constants won't change:
 const int sensorPin = A2;    // pin that the sensor is attached to
 const int ledPin = 13;       // pin that the LED is attached to
-const int numReadings = 10;  // number of samples taken to average
 
 // variables:
 int sensorValue = 0;         // the sensor value
@@ -69,7 +61,7 @@ void loop() {
   ADCFilter.Filter(sensorValue);
 
   TimePlot Plot;
-  //Plot.SendData("Raw", sensorValue);
+  Plot.SendData("Raw", sensorValue);
   Plot.SendData("Filtered", ADCFilter.Current());
 
   // send it to the computer as ASCII digits
