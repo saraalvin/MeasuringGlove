@@ -7,12 +7,14 @@
 #include <Filter.h>
 
 // These constants won't change:
-const int switchPin = 16;    // pin that the switch is attached to
+const int switchPin = 7;    // pin that the switch is attached to
 const int ledPin = 13;       // pin that the LED is attached to
 
 // variables:
+bool sensorValue;
 int measuredDistance = 0;    // Variable to store measured distance
 int baseMeasurement = 15;    // Distance in cm between index and thumb tips
+bool alreadyTouched = false;
 
 void setup() {
 
@@ -33,12 +35,20 @@ void setup() {
 void loop() {
 
   // read the sensor:
-  if (digitalRead(switchPin) == HIGH) {  // the finger tips have touched
+  sensorValue = digitalRead(switchPin);
+  if (sensorValue == HIGH && alreadyTouched == false) {  // the finger tips have touched
+    alreadyTouched = true;
     digitalWrite(ledPin, HIGH);
     measuredDistance += baseMeasurement; // add one base measurement to the total distance measured
+  } else if (sensorValue == LOW && alreadyTouched == true){
+    alreadyTouched = false;
+    digitalWrite(ledPin, LOW);
+  } else if (sensorValue == LOW && alreadyTouched == false){
+    digitalWrite(ledPin, LOW);
   }
 
   // send it to the computer
+  //Serial.println(sensorValue);
   Serial.println(measuredDistance);
   delay(100);        // delay in between reads for stability
 
