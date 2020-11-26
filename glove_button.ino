@@ -1,14 +1,18 @@
-#include <MegunoLink.h>
+//#include <MegunoLink.h>
 #include <CommandHandler.h>
 #include <TCPCommandHandler.h>
 #include <ArduinoTimer.h>
 #include <CircularBuffer.h>
 #include <EEPROMStore.h>
 #include <Filter.h>
+#include <Adafruit_NeoPixel.h>
 
 // These constants won't change:
 const int switchPin = 7;    // pin that the switch is attached to
-const int ledPin = 13;       // pin that the LED is attached to
+const int ledPin = 13;
+const int neoPixPin = 4;       // pin that the LED is attached to
+const int nPixels = 1;
+Adafruit_NeoPixel pixels(nPixels, neoPixPin, NEO_GRB + NEO_KHZ800);
 
 // variables:
 bool sensorValue;
@@ -28,6 +32,10 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
 
+  pixels.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  //pixels.show();            // Turn OFF all pixels ASAP
+  pixels.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
+
   // indicate that the sensor pin will be used as input
   pinMode(switchPin, INPUT);
 }
@@ -39,12 +47,21 @@ void loop() {
   if (sensorValue == HIGH && alreadyTouched == false) {  // the finger tips have touched
     alreadyTouched = true;
     digitalWrite(ledPin, HIGH);
+
+    pixels.clear();
+    pixels.setPixelColor(0, pixels.Color(255,   0,   0));         //  Set pixel's color (in RAM)
+    //pixels.show();
+
     measuredDistance += baseMeasurement; // add one base measurement to the total distance measured
+
   } else if (sensorValue == LOW && alreadyTouched == true){
     alreadyTouched = false;
     digitalWrite(ledPin, LOW);
+    pixels.clear();
+
   } else if (sensorValue == LOW && alreadyTouched == false){
     digitalWrite(ledPin, LOW);
+    pixels.clear();
   }
 
   // send it to the computer
