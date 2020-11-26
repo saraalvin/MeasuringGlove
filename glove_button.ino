@@ -19,6 +19,10 @@ bool sensorValue;
 int measuredDistance = 0;    // Variable to store measured distance
 int baseMeasurement = 15;    // Distance in cm between index and thumb tips
 bool alreadyTouched = false;
+bool longTouch = false;
+unsigned long currentTime = 0;
+unsigned long startTime = 0;
+unsigned long elapsedTime = 0;
 
 void setup() {
 
@@ -45,17 +49,23 @@ void loop() {
   // read the sensor:
   sensorValue = digitalRead(switchPin);
   if (sensorValue == HIGH && alreadyTouched == false) {  // the finger tips have touched
+
     alreadyTouched = true;
+
+    measuredDistance += baseMeasurement; // add one base measurement to the total distance measured
+
     digitalWrite(ledPin, HIGH);
 
     pixels.clear();
     pixels.setPixelColor(0, pixels.Color(14,   106,   159));         //  Set pixel's color (in RAM)
     pixels.show();
 
-    measuredDistance += baseMeasurement; // add one base measurement to the total distance measured
+
 
   } else if (sensorValue == LOW && alreadyTouched == true){
     alreadyTouched = false;
+    elapsedTime = 0;
+    longTouch = false;
     digitalWrite(ledPin, LOW);
     pixels.setPixelColor(0, pixels.Color(0, 0, 0));
     pixels.show();
@@ -64,10 +74,35 @@ void loop() {
     digitalWrite(ledPin, LOW);
     pixels.setPixelColor(0, pixels.Color(0, 0, 0));
     pixels.show();
+
+    elapsedTime = 0;
+    longTouch = false;
+
+  } else if (sensorValue == HIGH && alreadyTouched == true && longTouch == false){
+    startTime = millis();
+    longTouch = true;
   }
 
   // send it to the computer
   //Serial.println(sensorValue);
+
+  if(longTouch == true) {
+    currentTime = millis();
+    elapsedTime = currentTime - startTime;
+    Serial.println(elapsedTime);
+
+    if (elapsedTime >= 5000){
+      measuredDistance = 0;
+      longTouch = false;
+      pixels.setPixelColor(0, pixels.Color(0, 255, 0));
+      pixels.show();
+      Serial.println("Reset");
+      delay(2000);
+      pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+      pixels.show();
+    }
+  }
+
   Serial.println(measuredDistance);
   delay(100);        // delay in between reads for stability
 
