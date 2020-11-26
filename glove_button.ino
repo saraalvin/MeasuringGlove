@@ -10,7 +10,7 @@
 // These constants won't change:
 const int switchPin = 7;    // pin that the switch is attached to
 const int ledPin = 13;
-const int neoPixPin = 4;       // pin that the LED is attached to
+const int neoPixPin = 12;       // pin that the LED is attached to
 const int nPixels = 1;
 Adafruit_NeoPixel pixels(nPixels, neoPixPin, NEO_GRB + NEO_KHZ800);
 
@@ -33,7 +33,7 @@ void setup() {
   digitalWrite(ledPin, LOW);
 
   pixels.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  //pixels.show();            // Turn OFF all pixels ASAP
+  pixels.show();            // Turn OFF all pixels ASAP
   pixels.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   // indicate that the sensor pin will be used as input
@@ -49,19 +49,21 @@ void loop() {
     digitalWrite(ledPin, HIGH);
 
     pixels.clear();
-    pixels.setPixelColor(0, pixels.Color(255,   0,   0));         //  Set pixel's color (in RAM)
-    //pixels.show();
+    pixels.setPixelColor(0, pixels.Color(14,   106,   159));         //  Set pixel's color (in RAM)
+    pixels.show();
 
     measuredDistance += baseMeasurement; // add one base measurement to the total distance measured
 
   } else if (sensorValue == LOW && alreadyTouched == true){
     alreadyTouched = false;
     digitalWrite(ledPin, LOW);
-    pixels.clear();
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+    pixels.show();
 
   } else if (sensorValue == LOW && alreadyTouched == false){
     digitalWrite(ledPin, LOW);
-    pixels.clear();
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+    pixels.show();
   }
 
   // send it to the computer
