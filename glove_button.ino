@@ -37,7 +37,7 @@ void setup() {
 
   // initialize serial communication with computer:
   Serial.begin(9600);
-  while (!Serial) ;
+  //while (!Serial) ;
 
   // reset measured distance
   measuredDistance = 0;
