@@ -19,8 +19,8 @@ Adafruit_NeoPixel pixels(nPixels, neoPixPin, NEO_GRB + NEO_KHZ800);
 #define OLED_MOSI   9
 #define OLED_CLK   10
 #define OLED_DC    11
-#define OLED_CS    13
-#define OLED_RESET 12
+#define OLED_CS    12
+#define OLED_RESET 13
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
   OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
 
@@ -117,7 +117,7 @@ void loop() {
   if(longTouch == true && measuredDistance != 0) {
     currentTime = millis();
     elapsedTime = currentTime - startTime;
-    Serial.println(elapsedTime);
+    //Serial.println(elapsedTime);
     int remainingTime = (5000 - elapsedTime)/1000;
 
     if(remainingTime >= 0) {
@@ -140,14 +140,14 @@ void loop() {
 
       drawText(1, 10, 50, String("Reset done!"));
 
-      Serial.println("Reset");
+      //Serial.println("Reset");
       delay(1000);
       pixels.setPixelColor(0, pixels.Color(0, 0, 0));
       pixels.show();
     }
   }
 
-  Serial.println(measuredDistance);
+  //6Serial.println(measuredDistance);
   drawText(1, 10, 10, String("Base unit: " + baseUnitStr + " cm"));
   drawText(1, 10, 20, "Measured distance:");
   String measuredDistanceStr = String(measuredDistance);
